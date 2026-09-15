@@ -159,6 +159,7 @@ def self_check() -> None:
     assert binary_pow(2, 10) == 1024
     assert binary_pow(2, 10, mod=1000) == 24
 
+
     # Сверка с эталонными реализациями на случайных данных
     rng = random.Random(0)
     for _ in range(200):
@@ -171,6 +172,7 @@ def self_check() -> None:
 
     # TODO: добавить собственные проверки инвариантов и описать их в отчёте
     # (например: count_equal_pairs на массиве из попарно различных элементов = 0).
+    
     print("self_check: OK")
 
 

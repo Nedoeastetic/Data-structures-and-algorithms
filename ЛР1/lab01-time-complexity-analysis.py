@@ -181,6 +181,27 @@ def self_check() -> None:
     assert binary_pow(2, 10) == 1024
     assert binary_pow(2, 10, mod=1000) == 24
 
+ # Собственные проверки инвариантов
+    # Сумма не зависит от порядка элементов
+    assert array_sum([1, 2, 3, 4]) == array_sum([4, 3, 2, 1])
+
+    # Максимум массива не меньше любого его элемента
+    test_array = [10, 3, 7, 2]
+    maximum = array_max(test_array)
+    assert all(maximum >= value for value in test_array)
+
+    # В массиве из попарно различных элементов нет равных пар
+    assert count_equal_pairs([1, 2, 3, 4]) == 0
+
+    # Для четырёх одинаковых элементов число пар равно 4 * 3 / 2 = 6
+    assert count_equal_pairs([5, 5, 5, 5]) == 6
+
+    # Проверка обычного возведения в степень
+    assert binary_pow(3, 5) == 243
+
+    # Проверка свойства: x^(a+b) = x^a * x^b
+    assert binary_pow(2, 3 + 4) == binary_pow(2, 3) * binary_pow(2, 4)
+
     # Сверка с эталонными реализациями на случайных данных
     rng = random.Random(0)
     for _ in range(200):
@@ -191,8 +212,7 @@ def self_check() -> None:
         x, n = rng.randint(2, 50), rng.randint(0, 64)
         assert binary_pow(x, n, mod=POW_MOD) == pow(x, n, POW_MOD)
 
-    # TODO: добавить собственные проверки инвариантов и описать их в отчёте
-    # (например: count_equal_pairs на массиве из попарно различных элементов = 0).
+   
     print("self_check: OK")
 
 
@@ -337,8 +357,31 @@ def main() -> None:
     print("\nНаклон в осях log-log (оценка показателя степени):")
     for name in ("array_sum", "array_max", "count_equal_pairs"):
         print(f"  {name:20s} {log_log_slope(results[name]):.3f}")
-    # TODO: сопоставить наклоны с аналитическими оценками из отчёта
-    # и объяснить расхождения (константы, кэш, накладные расходы интерпретатора).
+        # Сопоставление экспериментальных наклонов
+    # с аналитическими оценками сложности.
+    theoretical_slopes = {
+        "array_sum": 1.0,
+        "array_max": 1.0,
+        "count_equal_pairs": 2.0,
+    }
+
+    print("\nСопоставление экспериментальных наклонов с теорией:")
+    for name in ("array_sum", "array_max", "count_equal_pairs"):
+        experimental = log_log_slope(results[name])
+        theoretical = theoretical_slopes[name]
+
+        print(
+            f"  {name:20s}: "
+            f"эксперимент = {experimental:.3f}, "
+            f"теория = {theoretical:.1f}"
+        )
+
+    print(
+        "\nРасхождения между экспериментом и теорией объясняются "
+        "постоянными накладными расходами, особенностями интерпретатора "
+        "Python, работой кэша процессора и влиянием фоновых процессов "
+        "операционной системы."
+    )
 
     plot_results(results, args.out)
 
