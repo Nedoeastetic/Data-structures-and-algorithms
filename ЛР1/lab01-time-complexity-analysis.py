@@ -334,7 +334,59 @@ def plot_results(results: dict[str, list[tuple[int, float]]], out_dir: Path) -> 
     # по log₂ n, а не log-log (какой вид имеет логарифмическая зависимость
     # в осях log-log и почему по ней трудно судить о порядке роста).
 
+def plot_complexity_growth(out_dir: Path) -> None:
+    """График роста основных классов временной сложности."""
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("\nmatplotlib не установлен — график сложности пропущен.")
+        return
 
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Размер входа от 1 до 100
+    n_values = list(range(1, 101))
+
+    complexities = {
+        "O(1)": [1] * len(n_values),
+        "O(log n)": [math.log2(n) for n in n_values],
+        "O(n)": [n for n in n_values],
+        "O(n log n)": [n * math.log2(n) if n > 1 else 0 for n in n_values],
+        "O(n²)": [n ** 2 for n in n_values],
+        "O(2^n)": [2 ** n for n in n_values],
+        "O(n!)": [math.factorial(n) for n in n_values],
+    }
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for name, values in complexities.items():
+        ax.plot(
+            n_values,
+            values,
+            linewidth=2,
+            label=name
+        )
+
+    ax.set_xlim(1, 100)
+    ax.set_yscale("log")
+    ax.set_ylim(0.5, 10**10)
+
+    ax.set_xlabel("Количество элементов n")
+    ax.set_ylabel("Количество операций (логарифмическая шкала)")
+    ax.set_title("График роста O-большого")
+
+    ax.grid(True, which="both", linewidth=0.5)
+    ax.legend()
+
+    fig.tight_layout()
+
+    path = out_dir / "lab01_complexity_growth.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+    print(f"  {path}")
 # ---------------------------------------------------------------------------
 
 
@@ -384,6 +436,7 @@ def main() -> None:
     )
 
     plot_results(results, args.out)
+    plot_complexity_growth(args.out)
 
 
 if __name__ == "__main__":
